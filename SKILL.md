@@ -1,6 +1,6 @@
 ---
 name: arkiv-ethlisbon
-description: Use when working with @arkiv-network/sdk during the ETHLisbon hackathon, or any 36-hour Arkiv build. Adds 7 gap-fill gotchas not in the official arkiv-best-practices skill (Node v24 bug, updateEntity full-replace, polling-not-WS events, watchEntities removed, mainnet status, Golem-DB legacy aliases, pagination requires limit). Includes 3 starter templates (agent memory, Notion-style notes, file vault with TTL), a demo prep checklist, and Claude Code prompting patterns. Pair with the official arkiv-best-practices skill for full Arkiv fluency.
+description: Use when working with @arkiv-network/sdk during the ETHLisbon hackathon, or any 36-hour Arkiv build. Adds 6 common pitfalls not in the official arkiv-best-practices skill (Node v24 bug, updateEntity full-replace, polling-not-WS events, watchEntities removed, Golem-DB legacy aliases, pagination requires limit). Includes 3 starter templates (agent memory, Notion-style notes, file vault with TTL), a demo prep checklist, and Claude Code prompting patterns. Pair with the official arkiv-best-practices skill for full Arkiv fluency.
 ---
 
 # Arkiv ETHLisbon Builder Skill
@@ -22,7 +22,7 @@ This skill does **not** repeat the official content. It only adds the things ETH
 
 ---
 
-## Section 1: Gap-fill gotchas (not in `arkiv-best-practices`)
+## Section 1: Common pitfalls (not in the official skill)
 
 ### 1.1 Node v24 silently breaks `updateEntity`
 
@@ -105,21 +105,7 @@ onEntityCreated: async (e) => {
 
 Older blog posts, AI-generated code, and the deprecated `arkiv-sdk` package all reference `publicClient.watchEntities()`. It was removed (closed issue: `arkiv-sdk-js#15`). If you see it, replace with `subscribeEntityEvents` (above) or viem's inherited `watchEvent` for raw event log subscription.
 
-### 1.5 Mainnet is NOT live (as of `@arkiv-network/sdk@0.6.x`)
-
-The SDK exports four testnet chains and **zero mainnet chains**. Don't pitch your demo as "deployed to Arkiv mainnet" — Arkiv's marketing copy is forward-looking, the network isn't there yet.
-
-| Chain | Type | Chain ID | RPC |
-|---|---|---|---|
-| `kaolin` | testnet (primary) | 60138453025 | https://kaolin.hoodi.arkiv.network/rpc |
-| `mendoza` | testnet | 60138453056 | https://mendoza.hoodi.arkiv.network/rpc |
-| `rosario` | testnet | 60138453057 | https://rosario.hoodi.arkiv.network/rpc |
-| `marketplace` | testnet | 60138453027 | https://marketplace.hoodi.arkiv.network/rpc |
-| mainnet | — | — | NOT LIVE |
-
-Use `kaolin` unless you have a reason to use one of the others. Faucet: https://kaolin.hoodi.arkiv.network/faucet/ — gives 0.001 ETH per claim, PoW-gated.
-
-### 1.6 Legacy aliases: "Golem DB" and "BTL"
+### 1.5 Legacy aliases: "Golem DB" and "BTL"
 
 Arkiv was rebranded from **Golem DB** in late 2025. Older blog posts, the `golemdb-sdk-demos` repo, and AI-generated code may use:
 
@@ -129,7 +115,7 @@ Arkiv was rebranded from **Golem DB** in late 2025. Older blog posts, the `golem
 
 If your AI assistant produces code with any of these, fix it. They refer to the same concepts but have moved on.
 
-### 1.7 Pagination requires `.limit()`
+### 1.6 Pagination requires `.limit()`
 
 `result.next()` throws `NoCursorOrLimitError` if you didn't set a `.limit()` on the original query. Standard pattern:
 
@@ -161,11 +147,19 @@ Three patterns that win at hackathons. Copy, adapt, ship.
 
 Each template assumes you've replaced `PROJECT_ATTRIBUTE` with a globally unique slug (see official skill best practice #1). Use something like `<project-name>-<your-handle>-<random-suffix>`, e.g. `agentmem-santiagodevrel-7x9k`.
 
+<a id="agent-memory"></a>
 ### Template A — Agent Memory (LLM context with TTL)
 
 **Demo angle:** "Your AI agent remembers the last 7 days of conversation, immutably and queryable on-chain."
 
 **Why it wins:** dovetails with current AI hype, showcases Arkiv's TTL + queryable attribute combo, easy to demo (just chat with it).
+
+**What you can build with this:**
+- **Telegram tutor bot** — remembers each user's last 7 days of questions and answers across conversations
+- **Personal AI assistant** — your context syncs across web, mobile, and CLI from one on-chain memory store
+- **Customer support chat** — agent loads the user's prior interactions before responding
+- **AI audit log** — every model decision stored immutably for compliance/explainability ("on date X, the agent recommended Y based on Z")
+- **Multi-agent system** — agents share memory through a common queryable store
 
 ```ts
 // agent-memory.ts
@@ -230,11 +224,19 @@ export async function recallSession(agentId: string, sessionId: string, limit = 
 }
 ```
 
+<a id="notion-notes"></a>
 ### Template B — Notion-style Notes (user-owned, queryable, mutable)
 
 **Demo angle:** "User-owned notes. Owner can update or transfer them. Public can read by tag. Auto-expire after 30 days unless extended."
 
 **Why it wins:** classic dapp pattern that judges immediately understand; demonstrates ownership, mutation, and querying.
+
+**What you can build with this:**
+- **Personal todo app** — users own their tasks, can transfer them, browse by tag
+- **Team wiki / shared notebook** — public read by anyone, editable only by the owner wallet
+- **Web3 blogging platform** — drafts auto-expire if not published, posts queryable by topic
+- **Community recipe book** — anyone can publish, owners can update, all browsable by ingredient/cuisine
+- **Job board / classifieds** — listings auto-expire, searchable by category, owner can renew
 
 ```ts
 // notes-app.ts (frontend with wagmi + MetaMask, or backend with private key)
@@ -321,11 +323,19 @@ export async function updateNote(walletClient: any, entityKey: `0x${string}`, pa
 }
 ```
 
+<a id="file-vault"></a>
 ### Template C — File Vault with TTL (ephemeral file sharing)
 
 **Demo angle:** "Drop a file, share a link, file auto-deletes after N hours. No central server, no account."
 
 **Why it wins:** clear visual demo, showcases binary payload + programmable expiry, immediately useful.
+
+**What you can build with this:**
+- **Wormhole.app clone** — drop a file, get a link, auto-deletes after 24h
+- **Event-specific file drop** — conference materials that vanish after the conference ends (no manual cleanup)
+- **Confidential one-time document share** — encrypt before upload (with a separate tool), share key out-of-band, file self-destructs
+- **Class assignment submission box** — students submit, deadline = TTL, no late submissions possible
+- **Anonymous tip line** — leakers drop docs with short TTL so they're not permanently archived
 
 ```ts
 // file-vault.ts

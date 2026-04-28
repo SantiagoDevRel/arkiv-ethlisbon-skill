@@ -33,20 +33,19 @@ test("SKILL.md has balanced code fences", () => {
   assert.equal(fences % 2, 0, `unbalanced code fences: ${fences}`);
 });
 
-test("SKILL.md covers all 7 gap-fill gotchas", () => {
+test("SKILL.md covers all 6 common pitfalls", () => {
   const requiredKeywords = [
     "Node v24",
     "FULL-REPLACE",
     "polling",
     "watchEntities",
-    "Mainnet is NOT live",
     "Golem DB",
     "Pagination requires",
   ];
   for (const kw of requiredKeywords) {
     assert.ok(
       skillContent.includes(kw),
-      `SKILL.md missing required gotcha keyword: "${kw}"`
+      `SKILL.md missing required pitfall keyword: "${kw}"`
     );
   }
 });
