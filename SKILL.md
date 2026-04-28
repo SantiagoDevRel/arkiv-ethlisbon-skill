@@ -22,6 +22,7 @@ This skill does **not** repeat the official content. It only adds the things ETH
 
 ---
 
+<a id="pitfalls"></a>
 ## Section 1: Common pitfalls (not in the official skill)
 
 ### 1.1 Node v24 silently breaks `updateEntity`
@@ -447,6 +448,7 @@ Both methods deserialize the **payload** only — not attributes, not metadata. 
 
 ---
 
+<a id="demo-checklist"></a>
 ## Section 3: Demo prep checklist (the night before)
 
 - **Pin Node 22.10** — `nvm use 22.10` or commit a `.nvmrc`. Node v24 will break `updateEntity` mid-demo.
@@ -462,6 +464,7 @@ Both methods deserialize the **payload** only — not attributes, not metadata. 
 
 ---
 
+<a id="prompting-patterns"></a>
 ## Section 4: Claude Code prompting patterns
 
 When working on Arkiv code with Claude (this skill loaded), these prompts produce reliably good output:

@@ -42,7 +42,7 @@ This skill is **~18 KB of unique content**. Everything else delegates to the off
 
 ## The 6 pitfalls — why each matters _(open for review by Arkiv engineering team)_
 
-Every pitfall here is something a real Arkiv builder hits. Validated against `@arkiv-network/sdk@0.6.3`. **If anything here is wrong, outdated, or missing context, the Arkiv engineering team's input is most welcome — open an issue or PR.**
+Each one is real bite-risk for a hackathon team. Full code + fix examples in **[SKILL.md → Section 1](./SKILL.md#pitfalls)**. Validated against `@arkiv-network/sdk@0.6.3`. **If anything here is wrong, outdated, or missing context, the Arkiv engineering team's input is most welcome — open an issue or PR.**
 
 ### 1. Node v24 silently breaks `updateEntity`
 The function returns a promise that **never resolves** on Node v24. Open SDK issue [#14](https://github.com/Arkiv-Network/arkiv-sdk-js/issues/14). If you don't know about this, you'll spend hours debugging "why is my code stuck?". Fix is one line: `nvm use 22.10`.
@@ -98,6 +98,31 @@ downloadFile(entityKey)                                 // download by key
 ```
 
 **What you can build:** Wormhole.app clone, event-specific file drop, one-time document share, assignment submission box.
+
+## Demo prep checklist → [full list in SKILL.md](./SKILL.md#demo-checklist)
+
+The night-before checklist. Things ETHLisbon teams forget that bite during the demo:
+
+- **Pin Node 22.10** — avoids the `updateEntity` hang from pitfall #1
+- **Faucet your demo wallet 24h ahead** — Kaolin faucet has PoW, slow during peak hackathon hours
+- **Use a separate demo wallet** — never your personal one
+- **Pre-load 5-10 sample entities** — empty queries make terrible visuals
+- **Record a screencast as backup** — RPC outages during demos are rare but devastating
+- **Have the explorer URL ready** — judges love seeing the on-chain proof
+
+10 items total. **[See the full checklist in SKILL.md](./SKILL.md#demo-checklist).**
+
+## Claude Code prompting patterns → [full list in SKILL.md](./SKILL.md#prompting-patterns)
+
+The exact prompts that produce reliably good Arkiv code with this skill loaded. Examples:
+
+- *"Critique this Arkiv code for ETHLisbon production"* — Claude applies all anti-patterns
+- *"Refactor this loop into a single mutateEntities batch"* — saves gas + tx count
+- *"Generate a query for entities of type X created by [address] in the last 24h"* — Claude builds the right `where + createdBy + gt` chain
+- *"Add a TTL extension flow before this entity expires"* — wires up `extendEntity` correctly
+- *"Validate this updateEntity call preserves all attributes"* — checks the full-replace pitfall
+
+6 patterns total. **[See the full list with explanations in SKILL.md](./SKILL.md#prompting-patterns).**
 
 ## CLI flags
 
