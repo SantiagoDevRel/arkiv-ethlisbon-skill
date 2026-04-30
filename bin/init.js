@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const SKILL_SRC = path.join(__dirname, "..", "SKILL.md");
-const SKILL_DEST_NAME = "arkiv-ethlisbon.md";
+const SKILL_FOLDER_NAME = "arkiv-ethlisbon";
 const PKG_NAME = "@santiagodevrel/arkiv-ethlisbon-skill";
 
 const cyan = (s) => `\x1b[36m${s}\x1b[0m`;
@@ -42,7 +42,7 @@ ${bold("Flags:")}
 
 ${bold("What it installs:")}
   1. The official ${bold("arkiv-best-practices")} skill (via npx skills add)
-  2. The ETHLisbon-specific layer: ${SKILL_DEST_NAME}
+  2. The ETHLisbon-specific layer: ${SKILL_FOLDER_NAME}/SKILL.md
 
 ${dim("Repo: https://github.com/santiagodevrel/arkiv-ethlisbon-skill")}
 `);
@@ -68,7 +68,9 @@ function copySkill(scope, dryRun) {
   const baseDir = scope === "project"
     ? path.join(process.cwd(), ".claude", "skills")
     : path.join(os.homedir(), ".claude", "skills");
-  const dest = path.join(baseDir, SKILL_DEST_NAME);
+  // Claude Code expects subfolder format: ~/.claude/skills/<name>/SKILL.md
+  const skillDir = path.join(baseDir, SKILL_FOLDER_NAME);
+  const dest = path.join(skillDir, "SKILL.md");
   if (dryRun) {
     ok(`(dry-run) would: copy SKILL.md → ${dest}`);
     return dest;
@@ -76,7 +78,7 @@ function copySkill(scope, dryRun) {
   if (!fs.existsSync(SKILL_SRC)) {
     throw new Error(`Source SKILL.md not found at ${SKILL_SRC}`);
   }
-  fs.mkdirSync(baseDir, { recursive: true });
+  fs.mkdirSync(skillDir, { recursive: true });
   fs.copyFileSync(SKILL_SRC, dest);
   return dest;
 }
