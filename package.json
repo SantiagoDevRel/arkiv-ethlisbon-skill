@@ -1,6 +1,6 @@
 {
   "name": "@santiagodevrel/arkiv-ethlisbon-skill",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Claude Code skill that makes you Arkiv-fluent for ETHLisbon. Pairs with the official arkiv-best-practices skill, adds gap-fill gotchas, ETHLisbon starter templates, and Claude Code prompting patterns. One npx command installs both.",
   "type": "module",
   "bin": {

@@ -48,20 +48,35 @@ ${dim("Repo: https://github.com/santiagodevrel/arkiv-ethlisbon-skill")}
 `);
 }
 
-function installOfficialSkill(dryRun) {
-  return new Promise((resolve) => {
-    if (dryRun) {
-      ok("(dry-run) would: npx skills add https://github.com/Arkiv-Network/skills --skill arkiv-best-practices");
-      return resolve(true);
+// Fetch the official arkiv-best-practices skill directly from GitHub.
+// Why not use `npx skills add`? That CLI doesn't natively support Claude Code's
+// ~/.claude/skills/ location — it installs to .agents/skills/ (cross-agent format)
+// which Claude Code doesn't read. Direct fetch puts the file exactly where it needs to be.
+async function installOfficialSkill(scope, dryRun) {
+  const baseDir = scope === "project"
+    ? path.join(process.cwd(), ".claude", "skills")
+    : path.join(os.homedir(), ".claude", "skills");
+  const skillDir = path.join(baseDir, "arkiv-best-practices");
+  const dest = path.join(skillDir, "SKILL.md");
+  const url = "https://raw.githubusercontent.com/Arkiv-Network/skills/main/skills/arkiv-best-practices/SKILL.md";
+  if (dryRun) {
+    ok(`(dry-run) would: fetch ${url} → ${dest}`);
+    return true;
+  }
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      warn(`Could not fetch official skill (HTTP ${res.status}). Manual fallback:\n      curl -L ${url} -o ${dest}`);
+      return false;
     }
-    const child = spawn(
-      "npx",
-      ["skills", "add", "https://github.com/Arkiv-Network/skills", "--skill", "arkiv-best-practices"],
-      { stdio: "inherit", shell: true }
-    );
-    child.on("exit", (code) => resolve(code === 0));
-    child.on("error", () => resolve(false));
-  });
+    const content = await res.text();
+    fs.mkdirSync(skillDir, { recursive: true });
+    fs.writeFileSync(dest, content);
+    return true;
+  } catch (e) {
+    warn(`Could not fetch official skill: ${e.message}`);
+    return false;
+  }
 }
 
 function copySkill(scope, dryRun) {
@@ -106,10 +121,9 @@ async function main() {
   console.log();
 
   if (!skipOfficial) {
-    step("Installing official arkiv-best-practices skill...");
-    const success = await installOfficialSkill(dryRun);
+    step(`Installing official arkiv-best-practices skill (direct fetch from GitHub)...`);
+    const success = await installOfficialSkill(isProject ? "project" : "user", dryRun);
     if (success) ok("Official skill installed.");
-    else warn("Could not auto-install official skill. Run manually:\n      npx skills add https://github.com/Arkiv-Network/skills --skill arkiv-best-practices");
   } else {
     warn("Skipping official skill install (--skip-official).");
   }
